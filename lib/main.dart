@@ -18,7 +18,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: BlocProvider(
+        create: (context) => CounterBloc(),
+        child: const MyHomePage(title: 'Flutter Demo Home Page'),
+      ),
     );
   }
 }
@@ -34,12 +37,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  CounterBloc counterBloc = CounterBloc();
+  late CounterBloc counterBloc;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void initState() {
+    // requesting counter bloc from the bloc provider
+    counterBloc = BlocProvider.of<CounterBloc>(context);
+    super.initState();
   }
 
   @override
@@ -56,25 +60,23 @@ class _MyHomePageState extends State<MyHomePage> {
             const Text(
               'You have pushed the button this many times:',
             ),
-            BlocBuilder(
-                bloc: counterBloc,
-                builder: (context, state) {
-                  if (state is IncrementState) {
-                    _counter = state.value;
-                    return Text(
-                      'Incremented: $_counter',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    );
-                  } else if (state is DecrementState) {
-                    _counter = state.value;
-                    return Text(
-                      'Decremented: $_counter',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    );
-                  } else {
-                    return Container();
-                  }
-                }),
+            BlocBuilder<CounterBloc, CounterState>(builder: (context, state) {
+              if (state is IncrementState) {
+                _counter = state.value;
+                return Text(
+                  'Incremented: $_counter',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                );
+              } else if (state is DecrementState) {
+                _counter = state.value;
+                return Text(
+                  'Decremented: $_counter',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                );
+              } else {
+                return Container();
+              }
+            }),
           ],
         ),
       ),
